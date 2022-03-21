@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>NiftyAppraisal</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/Helvetica%20Now%20Display.css">
+    <link rel="stylesheet" href="static/css/HelveticaNowText.css">
+    <link rel="stylesheet" href="static/css/styles.css">
+</head>
+
+<body>
+    <div class="container" style="margin-bottom: 0px;">
+        <div class="row">
+            <div class="col">
+                <h1 style="padding: 20px;font-weight: bold;padding-bottom: 0px;padding-left: 0px;font-family: HelveticaNowText;">NiftyAppraisal⁺</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p id="address" style="padding: 0px;color: var(--bs-white);font-size: 22px;text-align: left;font-weight: bold;margin-bottom: 0px;">{{ results.address }}<br></p>
+            </div>
+        </div>
+        {% if results.success == 'False' %}
+        <div class="row">
+            <div class="col">
+                <p style="padding: 0px;color: var(--bs-red);font-size: 22px;text-align: left;font-weight: bold;margin-bottom: 0px;">Invalid Ethereum Address<br></p>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col">
+                <p style="margin-bottom: 0px;text-align: center;font-size: 16px;font-family: 'Helvetica Now Display';color: var(--bs-gray);">Estimated Value</p>
+                <h1 id="tot_usd" style="font-family: 'Helvetica Now Display';text-align: center;margin-bottom: 0px;">$0</h1>
+                <p id="tot_eth" style="margin-bottom: 0px;text-align: center;font-size: 16px;font-family: 'Helvetica Now Display';color: var(bs-gray);">0 ETH</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p style="padding: 0px;color: var(--bs-white);font-size: 22px;text-align: left;font-weight: bold;margin-bottom: 0px;">Invalid Ethereum Address<br></p>
+            </div>
+        </div>
+        <div id="scroller" class="mb-3">
+          <template id="post_template">
+            <div class="row" style="margin-right: 0px;margin-left: -12px;margin-bottom: 16px;">
+                <div class="col" style="max-width: 125px;">
+                    <div><img id="viz" src="static/img/unnamed%20(2).png" style="max-height: 100px;"></div>
+                </div>
+                <div class="col" style="max-width: 170px;">
+                    <p id="name" style="font-family: 'Helvetica Now Display';"></p>
+                </div>
+                <div class="col">
+                    <p style="font-size: 16px;font-family: 'Helvetica Now Display';margin-bottom: 0px;color: var(--bs-gray);">30 day Average Sale Value (ETH)&nbsp;</p>
+                    <p id="sales_avg" style="font-family: 'Helvetica Now Display';"></p>
+                </div>
+                <div class="col">
+                    <p style="font-size: 16px;font-family: 'Helvetica Now Display';margin-bottom: 0px;color: var(--bs-gray);">Holdings (ETH)</p>
+                    <p id="holdings" style="font-family: 'Helvetica Now Display';"></p>
+                </div>
+            </div>
+          </template>
+        </div>
+        <div class="d-flex justify-content-center mb-3" id="sentinel">
+          <div class="spinner-border" role="status"></div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p style="text-align: center;font-family: 'Helvetica Now Display';font-size: 15px;">Made by NiftyTable</p>
+            </div>
+        </div>
+    </div>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+      // Get references to the dom elements
+      var address = document.querySelector("#address").innerHTML;
+      var scroller = document.querySelector("#scroller");
+      var template = document.querySelector('#post_template');
+      var tot_eth = document.querySelector("#tot_eth");
+      var tot_usd = document.querySelector("#tot_usd");
+      var loaded = 0;
+
+      function loadItems() {
+
+        if (loaded == 1) {
+          sentinel.innerHTML = " ";
+          return;
+        }
+
+        fetch(`/data?address=${address}`).then((response) => {
+
+          response.json().then((data) => {
+
+            // If empty JSON, exit the function
+            if (!data['data'].length) {
+              sentinel.innerHTML = "This address does not own any NFTs";
+              return;
+            }
+
+            tot_eth.innerHTML = String(data['total_eth']) + " ETH";
+            tot_usd.innerHTML = "$" + String(data['total_usd']);
+
+
+            var entries = JSON.parse(data['data']);
+            console.log(Object.keys(entries).length);
+
+            // Iterate over the items in the response
+            for (var i = 0; i < Object.keys(entries).length; i++) {
+
+              // Clone the HTML template
+              let template_clone = template.content.cloneNode(true);
+
+              // Query & update the template content
+              template_clone.querySelector("#name").innerHTML = entries[i]['name'];
+              template_clone.querySelector("#sales_avg").innerHTML = entries[i]['30day_avg'];
+              template_clone.querySelector("#holdings").innerHTML = entries[i]['value'];
+              template_clone.querySelector("#viz").src = entries[i]['image'];
+
+              // Append template to dom
+              scroller.appendChild(template_clone);
+
+            }
+
+            loaded = 1;
+          })
+
+        })
+      }
+
+
+
+      // Create a new IntersectionObserver instance. when scroller in view call the endpoint
+      var intersectionObserver = new IntersectionObserver(entries => {
+
+      // If intersectionRatio is 0, the sentinel is out of view
+      // and we don't need to do anything. Exit the function
+      if (entries[0].intersectionRatio <= 0) {
+        return;
+      }
+
+      // Call the endpoint
+      loadItems();
+
+      });
+
+      // Instruct the IntersectionObserver to watch the sentinel
+      intersectionObserver.observe(sentinel);
+    </script>
+</body>
+
+</html>
