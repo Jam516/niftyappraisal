@@ -103,6 +103,7 @@ def appraisal():
         return render_template('pages/index5.html', results = {"success": success, "address": address})
     else:
         success = 'False'
+        print("Failed to load")
         return render_template('pages/index5.html', results = {"success": success, "address": address})
 
 
@@ -114,7 +115,7 @@ def data():
     df = process_json(raw_data, address)
     total = df['value'].sum()
     total = round(total, 2)
-    print('Total1:'+ str(total))
+    # print('Total1:'+ str(total))
 
     URL = 'https://api.coinpaprika.com/v1/coins/eth-ethereum/ohlcv/today'
     r = requests.get(url = URL)
@@ -122,23 +123,12 @@ def data():
     eth_price = eth_data[0]['open']
     total_usd = total * eth_price
     total_usd = round(total_usd, 2)
-    print('Total2:'+ str(total_usd))
+    # print('Total2:'+ str(total_usd))
 
     success = 'True'
-    print(df)
+    # print(df)
     jsonDf = df.to_json(orient='index')
     return {"success": success, "data": jsonDf, "count": len(df), "total_eth": total, "total_usd": total_usd}
-
-    # if data['response'] == 'OK':
-    #     df = process_json(data, address)
-    #     success = 'True'
-    #     return {"success": success, "data": df, "count": len(df)}
-    # else:
-    #     df = []
-    #     success = 'False'
-    #     return {"success": success, "data": df, "count": len(df)}
-
-#TODO: hide opensea key in env
 
 
 @app.errorhandler(404)

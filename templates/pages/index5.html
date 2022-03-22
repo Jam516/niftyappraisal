@@ -62,9 +62,11 @@
             </div>
           </template>
         </div>
+        {% if results.success == 'True' %}
         <div class="d-flex justify-content-center mb-3" id="sentinel">
           <div class="spinner-border" role="status"></div>
         </div>
+        {% endif %}
         <div class="row">
             <div class="col">
                 <p style="text-align: center;font-family: 'Helvetica Now Display';font-size: 15px;">Made by NiftyTable</p>
