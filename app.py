@@ -53,7 +53,11 @@ def process_json(raw_data, address):
         URL = 'https://api.opensea.io/api/v1/asset_contract/'+row['contract_address']
         r = requests.get(url = URL, headers = HEAD)
         data = r.json()
-        holdings.loc[index, 'image'] = data['image_url']
+        # print(data['image_url'])
+        try:
+            holdings.loc[index, 'image'] = data['image_url']
+        except:
+            holdings.loc[index, 'image'] = "static/img/def.jpg"
         holdings.loc[index, 'name'] = data['name']
         try:
             holdings.loc[index, 'slug'] = data['collection']['slug']
