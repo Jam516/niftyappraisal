@@ -53,7 +53,7 @@ def process_json(raw_data, address):
         URL = 'https://api.opensea.io/api/v1/asset_contract/'+row['contract_address']
         r = requests.get(url = URL, headers = HEAD)
         data = r.json()
-        print(data)
+        # print(data)
         #got throttled in prod
         holdings.loc[index, 'image'] = data['image_url']
         holdings.loc[index, 'name'] = data['name']
