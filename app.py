@@ -63,7 +63,7 @@ def process_json(raw_data, address):
         except:
             holdings.loc[index, 'slug'] = 0
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
     for index, row in holdings.iterrows():
         if row['slug']!=0:
