@@ -58,7 +58,12 @@ def process_json(raw_data, address):
             holdings.loc[index, 'image'] = data['image_url']
         except:
             holdings.loc[index, 'image'] = "static/img/def.jpg"
-        holdings.loc[index, 'name'] = data['name']
+
+        try:
+            holdings.loc[index, 'name'] = data['name']
+        except:
+            holdings.loc[index, 'name'] = "0"
+
         try:
             holdings.loc[index, 'slug'] = data['collection']['slug']
         except:
