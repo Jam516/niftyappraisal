@@ -53,21 +53,16 @@ def process_json(raw_data, address):
         URL = 'https://api.opensea.io/api/v1/asset_contract/'+row['contract_address']
         r = requests.get(url = URL, headers = HEAD)
         data = r.json()
-        print(data)
-        try:
-            holdings.loc[index, 'image'] = data['image_url']
-        except:
-            holdings.loc[index, 'image'] = "static/img/def.jpg"
-
-        try:
-            holdings.loc[index, 'name'] = data['name']
-        except:
-            holdings.loc[index, 'name'] = "0"
+        #got throttled in prod
+        holdings.loc[index, 'image'] = data['image_url']
+        holdings.loc[index, 'name'] = data['name']
 
         try:
             holdings.loc[index, 'slug'] = data['collection']['slug']
         except:
             holdings.loc[index, 'slug'] = 0
+
+        time.sleep(0.1)
 
     for index, row in holdings.iterrows():
         if row['slug']!=0:
@@ -77,6 +72,7 @@ def process_json(raw_data, address):
             holdings.loc[index, '30day_avg'] = data['stats']['thirty_day_average_price']
         else:
             holdings.loc[index, '30day_avg'] = 0
+        time.sleep(0.1)
 
     holdings['value']=holdings['count']*holdings['30day_avg']
     holdings['30day_avg'] = holdings['30day_avg'].round(2)
